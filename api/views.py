@@ -64,7 +64,7 @@ class LandingAPIDetail(APIView):
 
     def delete(self, request, pk):
         return Response(None, status=status.HTTP_200_OK)
-"""
+
 
 
 Código de respuestas Http
@@ -125,3 +125,5 @@ class LandingAPIDetail(APIView):
         
         # Retornar un mensaje de éxito con status 204 No Content
         return Response({"message": "Documento eliminado correctamente"}, status=status.HTTP_204_NO_CONTENT)
+
+"""
