@@ -17,17 +17,18 @@ const lineConfig = {
         data: [43, 48, 40, 54, 67, 73, 70],
         fill: false,
       },
+      /**
       {
         label: 'Paid',
         fill: false,
-        /**
+        
          * These colors come from Tailwind CSS palette
          * https://tailwindcss.com/docs/customizing-colors/#default-color-palette
-         */
+         
         backgroundColor: '#7e3af2',
         borderColor: '#7e3af2',
         data: [24, 50, 64, 74, 52, 51, 65],
-      },
+      },*/
     ],
   },
   options: {
@@ -66,6 +67,56 @@ const lineConfig = {
   },
 }
 
+
 // change this to the id of your chart element in HMTL
 const lineCtx = document.getElementById('line')
 window.myLine = new Chart(lineCtx, lineConfig)
+
+// Función para procesar el JSON
+countCommentsByDays = (data) => {
+
+  // Crear un objeto para almacenar las frecuencias por fecha
+  const valores = Object.values(data);
+  const conteoFechas = {};
+
+  // Procesar cada elemento de la lista
+  valores.forEach((elemento) => {
+    // Extraer solo la fecha (parte antes de la coma en 'saved')
+    const fecha = elemento.saved.split(',')[0];
+    // Incrementar el conteo para esa fecha
+    if (conteoFechas[fecha]) {
+      conteoFechas[fecha] += 1;
+    } else {
+      conteoFechas[fecha] = 1;
+    }
+  });
+
+
+  const labels = Object.keys(conteoFechas)
+  const counts = Object.values(conteoFechas);
+  return { labels, counts };
+}
+
+update = () => {
+  fetch('/api/v1/landing')
+    .then(response => response.json())
+    .then(data => {
+
+      let { labels, counts } = countCommentsByDays(data)
+
+      // Reset data
+      window.myLine.data.labels = [];
+      window.myLine.data.datasets[0].data = [];
+      
+
+      // New data
+      window.myLine.data.labels = [...labels]
+      window.myLine.data.datasets[0].data = [...counts]
+
+      window.myLine.update();
+
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+update();
