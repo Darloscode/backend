@@ -58,72 +58,30 @@ class LandingAPIDetail(APIView):
         
         # Si el documento existe, retornar los datos con status 200 OK
         return Response(document, status=status.HTTP_200_OK)
-"""
-    def put(self, request, pk):
-        return Response(None, status=status.HTTP_200_OK)
-
-    def delete(self, request, pk):
-        return Response(None, status=status.HTTP_200_OK)
-
-
-
-Código de respuestas Http
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from firebase_admin import db
-
-class LandingAPIDetail(APIView):
-
-    name = 'Landing Detail API'
-    collection_name = 'coleccion'  # Asegúrate de poner el nombre correcto de tu colección
-
-    def get(self, request, pk):
-        # Referencia a la colección
-        ref = db.reference(f'{self.collection_name}/{pk}')
-        
-        # Obtener el documento por pk
-        document = ref.get()
-        
-        # Si el documento no existe, retornar un 404
-        if document is None:
-            return Response({"error": "Documento no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Si el documento existe, retornar los datos con status 200 OK
-        return Response(document, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        # Referencia a la colección
         ref = db.reference(f'{self.collection_name}/{pk}')
         
-        # Obtener el documento por pk
-        document = ref.get()
-        
-        # Si el documento no existe, retornar un 404
-        if document is None:
-            return Response({"error": "Documento no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Actualizar el documento con los datos proporcionados
+        datos = ref.get()
+        #verificar si el recurso existe
+        if datos is None:
+            return Response({"error":"Dato no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        if not request.data:
+            return Response({"error": "El cuerpo de la solicitud está vacío"}, status=status.HTTP_400_BAD_REQUEST)
+        # Actualizar los datos del documento
         ref.update(request.data)
+         # Devolver un mensaje confirmando la actualización
+        return Response({"message": "Documento actualizado exitosamente"}, status=status.HTTP_200_OK)
+
         
-        # Retornar un mensaje de éxito con status 200 OK
-        return Response({"message": "Documento actualizado correctamente"}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
-        # Referencia a la colección
-        ref = db.reference(f'{self.collection_name}/{pk}')
-        
-        # Obtener el documento por pk
-        document = ref.get()
-        
-        # Si el documento no existe, retornar un 404
-        if document is None:
-            return Response({"error": "Documento no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Eliminar el documento
-        ref.delete()
-        
-        # Retornar un mensaje de éxito con status 204 No Content
-        return Response({"message": "Documento eliminado correctamente"}, status=status.HTTP_204_NO_CONTENT)
-
-"""
+         ref = db.reference(f'{self.collection_name}/{pk}')
+         
+         dato = ref.get()
+         
+         if dato is None:
+             return Response({"eror": "Dato no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+         # Eliminamos la referencia
+         ref.delete()
+         return Response({"messege": "Dato eliminado exitosamente"},status=status.HTTP_204_NO_CONTENT)
