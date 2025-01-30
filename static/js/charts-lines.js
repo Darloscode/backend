@@ -7,7 +7,7 @@ const lineConfig = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
     datasets: [
       {
-        label: 'Organic',
+        label: 'Respuestas',
         /**
          * These colors come from Tailwind CSS palette
          * https://tailwindcss.com/docs/customizing-colors/#default-color-palette
@@ -74,15 +74,22 @@ window.myLine = new Chart(lineCtx, lineConfig)
 
 // Función para procesar el JSON
 countCommentsByDays = (data) => {
-
+  
   // Crear un objeto para almacenar las frecuencias por fecha
   const valores = Object.values(data);
   const conteoFechas = {};
+
+  // Función para convertir la fecha 'dd/mm/yyyy' a un objeto Date para ordenarla
+  const convertirAFecha = (fecha) => {
+    const [dia, mes, anio] = fecha.split('/');
+    return new Date(anio, mes - 1, dia); // Recuerda que los meses en JavaScript son 0-indexados
+  };
 
   // Procesar cada elemento de la lista
   valores.forEach((elemento) => {
     // Extraer solo la fecha (parte antes de la coma en 'saved')
     const fecha = elemento.saved.split(',')[0];
+
     // Incrementar el conteo para esa fecha
     if (conteoFechas[fecha]) {
       conteoFechas[fecha] += 1;
@@ -91,11 +98,14 @@ countCommentsByDays = (data) => {
     }
   });
 
-
+  // Ordenar las fechas (labels) de manera ascendente
   const labels = Object.keys(conteoFechas)
-  const counts = Object.values(conteoFechas);
+    .sort((a, b) => convertirAFecha(a) - convertirAFecha(b));
+
+  const counts = labels.map((fecha) => conteoFechas[fecha]);
+
   return { labels, counts };
-}
+};
 
 update = () => {
   fetch('/api/v1/landing')
